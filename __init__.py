@@ -19,7 +19,8 @@
 #
 ##############################################################################
 
-import product  
+import product
+import it_pos  
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
 

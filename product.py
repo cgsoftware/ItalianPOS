@@ -7,14 +7,7 @@ from tools.translate import _
 
 from osv import fields, osv
 
-class product(osv.osv):
-    _inherit='product.product'
-    
-    _columns = {
-                'codici_agg':fields.many2one('product.ean','Codice di collegamento alla tabella EAN'),
-                #'EAN':fields.char('Codice EAN',size=100,required=True),
-                }
-product()
+
 
 class codici_ean(osv.osv):
     _name = 'product.codici'
@@ -63,4 +56,13 @@ def check_ean(eancode):
     return True
 
 codici_ean()
+
+class product(osv.osv):
+    _inherit='product.product'
+    
+    _columns = {
+                'codici_agg':fields.many2one('product.codici','Codice di collegamento alla tabella EAN'),
+                'stampa_etich':fields.boolean('Stampa Etichetta')
+                }
+product()
 

@@ -2,7 +2,7 @@
 <openerp>
     <data>
     
-    <menuitem action="codici_agg" id="menu_codici_tree" parent="menu_point_of_sale_product" name="Codici Aggiuntivi"/>
+   
     
     <record model="ir.ui.view" id="Codici">
             <field name="name">product.codici</field>
@@ -13,6 +13,7 @@
 				  <page string="Codici Aggiuntivi">
 					<separator colspan="4" string="Codici Aggiuntivi"/>
 					<field name="codici_agg" />
+					<field name="stampa_etich"/>
 					<newline/>
 				  </page>
 			</notebook>
@@ -22,7 +23,7 @@
         
     
         
-      <record model="ir.ui.view" id="codici_agg">
+      <record model="ir.ui.view" id="codici_agg_view">
 	  <field name="name">codici.tree</field>
 	  <field name="model">product.codici</field>
 	  <field name="type">tree</field>
@@ -30,9 +31,19 @@
 	    <tree string="Codici Aggintivi dei prodotti">
 	    	<field name="name"/>
 			<field name="ean"/>
+			
 		</tree>
 	  </field>
 	</record> 
-                
+	
+	<record id="codici_agg" model="ir.actions.act_window">
+            <field name="name">Codici Aggiuntivi</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.codici</field>
+		<field name="view_mode">tree</field>
+     </record>
+	
+   <menuitem action="codici_agg" id="menu_codici_tree" parent="point_of_sale.menu_point_of_sale_product" sequence="3" name="Codici Aggiuntivi"/>
+	          
 </data>
 </openerp>
