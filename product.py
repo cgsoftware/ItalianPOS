@@ -9,60 +9,55 @@ from osv import fields, osv
 
 
 
-class codici_ean(osv.osv):
-    _name = 'product.codici'
+class product_multicode(osv.osv):
+    _name = 'product.multicode'
     _description = 'Codici aggiuntivi per prodotto'
     
     _columns = {
-                 'name':fields.char('Nome Codifica',size=15,required=True),
-                 'ean': fields.char('EAN13', size=13),
-                 
+                 'product_id': fields.many2one('product.product', 'Articolo', required=True, ondelete='cascade', select=True),
+                 'codice_aggiuntivo': fields.char('BarCode', size=128, required=True),
+                 'stampa_etich':fields.boolean('Stampa Etichetta'),
                  }
     
-def _check_ean_key(self, cr, uid, ids, context=None):
-        for product in self.browse(cr, uid, ids, context=context):
-            res = check_ean(product.ean.ean)
-        return res
 
-_constraints = [(_check_ean_key, 'Error: Invalid ean code', ['ean13'])]
+product_multicode()
 
-def check_ean(eancode):
-    if not eancode:
-        return True
-    if len(eancode) <> 13:
-        return False
-    try:
-        int(eancode)
-    except:
-        return False
-    oddsum=0
-    evensum=0
-    total=0
-    eanvalue=eancode
-    reversevalue = eanvalue[::-1]
-    finalean=reversevalue[1:]
-
-    for i in range(len(finalean)):
-        if is_pair(i):
-            oddsum += int(finalean[i])
-        else:
-            evensum += int(finalean[i])
-    total=(oddsum * 3) + evensum
-
-    check = int(10 - math.ceil(total % 10.0)) %10
-
-    if check != int(eancode[-1]):
-        return False
-    return True
-
-codici_ean()
-
-class product(osv.osv):
-    _inherit='product.product'
+class product_product(osv.osv):
+    _inherit = 'product.product'
     
     _columns = {
-                'codici_agg':fields.many2one('product.codici','Codice di collegamento alla tabella EAN'),
-                'stampa_etich':fields.boolean('Stampa Etichetta')
+                'righe_codici': fields.one2many('product.multicode', 'product_id', 'Righe Codici Aggiuntivi', required=False),
                 }
-product()
+
+    def name_search(self, cr, user, name='', args=None, operator='ilike', context=None, limit=100):
+        #import pdb;pdb.set_trace()
+        result = super(product_product, self).name_search(cr, user, name, args, operator, context, limit)
+        if not result:
+            # NON HA TROVATO NULLA CON LE REGOLE STANDARD ORA CERCA SUI CODICI AGGIUNTIVI
+            id_codice = self.pool.get('product.multicode').search(cr, user, [('codice_aggiuntivo', '=', name)])
+            if id_codice:
+                # ha trovato delle righe dovrebbe essere sempre e comunque una
+                ids = self.pool.get('product.multicode').browse(cr, user, id_codice)[0].product_id.id
+                ids = [ids]                
+                result = self.name_get(cr, user, ids, context=context)
+
+        return result
+    
+    
+    def _check_codice(self, cr, uid, ids, context=None):
+        ok = True
+     #   for product in self.browse(cr, uid, ids, context=context):
+     #       for riga_cod in product.righe_codici:
+     #           name = riga_cod.codice_aggiuntivo
+     #           result = self.name_search(cr, uid, name)
+     #           if result:
+     #             #  ok = False
+        pass
+                    
+
+        return ok
+
+
+    _constraints = [(_check_codice, 'Codice Non valido o Presente in altro Articolo', ['Codici Aggiuntivi'])]  
+product_product()
 
