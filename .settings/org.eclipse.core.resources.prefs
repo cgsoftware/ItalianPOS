@@ -1,5 +1,8 @@
-#Fri Aug 12 18:11:05 CEST 2011
+#Tue Aug 16 13:20:46 CEST 2011
 eclipse.preferences.version=1
+encoding//wizard/__init__.py=utf-8
+encoding//wizard/pos_payment.py=utf-8
 encoding/__init__.py=utf-8
 encoding/__openerp__.py=utf-8
+encoding/point_of_sale.py=utf-8
 encoding/product.py=utf-8

@@ -30,8 +30,10 @@ Main features :
    di un punto vendita in Italia
     """,
     'author': 'CgSoftware S.a.s.',
-    'depends': ['sale', 'delivery','ItalianFiscalDocument'],
-    'update_xml': ['pos_it_view.xml'],
+    'depends': ['sale', 'delivery', 'ItalianFiscalDocument'],
+    'update_xml': ['pos_it_view.xml',
+                   'wizard/pos_payment.xml',
+                   'security/ir.model.access.csv'],
     #'demo_xml': ['point_of_sale_demo.xml','account_statement_demo.xml'],
     #'test': ['test/point_of_sale_test.yml',
     #        'test/point_of_sale_report.yml',

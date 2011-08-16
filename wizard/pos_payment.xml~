@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!--  Select an Open Sale Order -->
+
+      
+
+
+	<record model="ir.ui.view" id="view_pos_payment2">
+            <field name="name">view.pos.payment2</field>
+            <field name="model">pos.make.payment</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_payment"/>
+                <field name="arch" type="xml">
+		  <field name="is_acc" position="replace">
+		    <field name="is_acc" invisible='1' />
+		  </field>
+		  <field name="pricelist_id" position='after' >
+		    <newline/>
+		    <field name="tipo_doc" attrs="{'required':[('invoice_wanted', '=', True)]}" colspan="2" on_change='changed_causale('tipo_doc') />
+		    <field name="progr" attrs="{'required':[('invoice_wanted', '=', True)]}" colspan="2"/>
+		    
+		  </field>
+		</field>
+		  
+		</record>
+		
+	      </data>
+	    </openerp>
+
