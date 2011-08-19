@@ -112,10 +112,11 @@ class pos_order(osv.osv):
                         'totale_riga':line.price_subtotal, })
                 righe.append((0, 0, riga))
             vals = testata
-            #import pdb;pdb.set_trace()
+            # import pdb;pdb.set_trace()
             vals.update({'righe_articoli':righe})
-            inv_id = inv_ref.create(cr, uid, vals, context)         
-            self.write(cr, uid, [order.id], {'doc_id': inv_id, 'state': 'invoiced'}, context=context)
+            inv_id = inv_ref.create(cr, uid, vals, context)
+            picking_id = inv_ref.browse(cr, uid, inv_id).picking_ids.id         
+            self.write(cr, uid, [order.id], {'doc_id': inv_id, 'state': 'invoiced', 'picking_id':picking_id}, context=context)
             inv_ids.append(inv_id)
                     
 # NON SERVE                inv_line_ref.create(cr, uid, inv_line, context=context)

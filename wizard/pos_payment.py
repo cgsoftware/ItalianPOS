@@ -59,6 +59,7 @@ class pos_make_payment(osv.osv_memory):
            return {'value': {'progr':prog_id}}
        
     def check(self, cr, uid, ids, context=None):
+        #import pdb;pdb.set_trace()
         """Check the order:
         if the order is not paid: continue payment,
         if the order is paid print invoice (if wanted) or ticket.
@@ -81,13 +82,14 @@ class pos_make_payment(osv.osv_memory):
             if data['partner_id'] and data['invoice_wanted']:
                 #import pdb;pdb.set_trace()
                 context.update({'param_id':ids})
-                order_obj.create_picking(cr, uid, [active_id], context=context)
-                order_obj.action_invoice(cr, uid, [active_id], context=context) # modificata la chiamata gli manda anche le info di memoria
+                # order_obj.create_picking(cr, uid, [active_id], context=context)
+                order_obj.action_invoice(cr, uid, [active_id], context=context) # modificata la chiamata gli manda anche le info di memoria               
                 context.update({'active_ids':order.doc_id.id})
                 if context.get('return', False):
                     order_obj.write(cr, uid, [active_id], {'state':'done'}, context=context)
                 else:
-                    order_obj.write(cr, uid, [active_id], {'state':'paid'}, context=context)
+                    
+                    order_obj.write(cr, uid, [active_id], {'state':'invoiced'}, context=context)
                 return self.create_invoice(cr, uid, ids, context=context)
             else:
                 context.update({'flag': True})
