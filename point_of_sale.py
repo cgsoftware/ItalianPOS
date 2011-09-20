@@ -58,6 +58,7 @@ class pos_order(osv.osv):
 
 
     def action_invoice(self, cr, uid, ids, context=None):
+
         #import pdb;pdb.set_trace()
         param_id = context.get('param_id', False)
         """Create a invoice of order  """
@@ -125,9 +126,54 @@ class pos_order(osv.osv):
       #      wf_service = netsvc.LocalService("workflow")
       #      wf_service.trg_validate(uid, 'account.invoice', i, 'invoice_open', cr)
         return inv_ids
+    
+
         
 pos_order()
 
-
+class pos_order_line(osv.osv):
+     _inherit = "pos.order.line"
+     
+     
+     #def onchange_product_id(self, cr, uid, ids, pricelist, product_id, qty=0, partner_id=False):
+     #   
+     #   product_obj = self.pool.get('product.product')
+     #   riga_art = product_obj.browse(cr, uid, product_id)
+     #   uom = riga_art.product_tmpl_id.uom_id
+     #   
+     #   import pdb;pdb.set_trace()
+     #   
+     #   price = self.price_by_product(cr, uid, ids, pricelist, product_id, qty, partner_id)
+     #   
+     #   self.write(cr, uid, ids, {'price_unit':price})
+     #   
+     #   pos_stot = (price * qty)
+     #   return {'value': {'price_unit': price, 'price_subtotal_incl': pos_stot}}
+    
+     def price_by_product(self, cr, uid, ids, pricelist, product_id, qty=0, partner_id=False):
+        
+        if not product_id:
+            return 0.0
+        if not pricelist:
+            raise osv.except_osv(_('No Pricelist !'),
+                _('You have to select a pricelist in the sale form !\n' \
+                'Please set one before choosing a product.'))
+        p_obj = self.pool.get('product.product').browse(cr, uid, [product_id])[0]
+        #import pdb;pdb.set_trace()
+        uom_id = p_obj.product_tmpl_id.uom_id.id
+        #uom_id2 = p_obj.uom_po_id.id
+        price = self.pool.get('product.pricelist').price_get(cr, uid,
+            [pricelist], product_id, qty or 1.0, partner_id, {'uom': uom_id})[pricelist]
+        unit_price=price or p_obj.list_price
+        if unit_price is False:
+            raise osv.except_osv(_('No valid pricelist line found !'),
+                _("Couldn't find a pricelist line matching this product" \
+                " and quantity.\nYou have to change either the product," \
+                " the quantity or the pricelist."))
+        return unit_price
+        #return {'value': {'product_uom': uom_id}} 
+        
+    
+pos_order_line()
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: OpenERP Server 6.0.1\n"
 "Report-Msgid-Bugs-To: support@openerp.com\n"
 "POT-Creation-Date: 2011-08-02 12:03+0000\n"
-"PO-Revision-Date: 2011-08-04 18:20+0100\n"
+"PO-Revision-Date: 2011-08-12 10:10+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -2002,7 +2002,7 @@ msgstr "Fatturato"
 #: view:pos.confirm:0
 #: view:pos.open.statement:0
 msgid "No"
-msgstr "No"
+msgstr "NO"
 
 #. module: point_of_sale
 #: field:pos.order.line,notice:0
