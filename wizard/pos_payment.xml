@@ -14,7 +14,9 @@
                 <field name="arch" type="xml">
 		  <field name="is_acc" position="replace">
 		    <field name="is_acc" invisible='1' />
+		    <field name="st_scontrino"  />
 		  </field>
+
 		  <field name="pricelist_id" position='after' >
 		    <newline/>
 		    <field name="tipo_doc" attrs="{'required':[('invoice_wanted', '=', True)]}" colspan="2" on_change='changed_causale(tipo_doc)' />
