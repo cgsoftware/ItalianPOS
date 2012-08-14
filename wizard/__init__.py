@@ -21,7 +21,7 @@
 
 import pos_payment
 import evade_ordini
-
+import pos_open_statement
 
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

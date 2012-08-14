@@ -113,15 +113,16 @@ class pos_order(osv.osv):
                                                  line.price_unit * (1-(line.discount or 0.0)/100.0), \
                                                  line.qty,  line.product_id, line.order_id.partner_id)['taxes']:
                         val += c.get('amount', 0.0)
-            res[order.id]['amount_tax'] = cur_obj.round(cr, uid, cur, val)
-            res[order.id]['amount_total'] = res[order.id]['amount_tax'] + cur_obj.round(cr, uid, cur, val1)
+            res[order.id]['amount_tax'] = round( val,2)
+            res[order.id]['amount_total'] = res[order.id]['amount_tax'] + round( val1,2)
+            
         return res
     
     
     _columns = {
                 'doc_id':  fields.many2one('fiscaldoc.header', 'Documento', select=True),
                 'amount_tax': fields.function(_amount_all, method=True, string='Taxes', digits_compute=dp.get_precision('Point Of Sale'), multi='all'),
-                'amount_total': fields.function(_amount_all, method=True, string='Total', multi='all'),
+                'amount_total': fields.function(_amount_all, method=True, string='Total', multi='all', digits_compute=dp.get_precision('Point Of Sale')),
                 'amount_paid': fields.function(_amount_all, string='Paid', states={'draft': [('readonly', False)]}, readonly=True, method=True, digits_compute=dp.get_precision('Point Of Sale'), multi='all'),
                 'amount_return': fields.function(_amount_all, 'Returned', method=True, digits_compute=dp.get_precision('Point Of Sale'), multi='all'),
                 
@@ -184,7 +185,8 @@ class pos_order(osv.osv):
                         'product_id': line.product_id.id,                         
                 }
                 riga.update(inv_line_ref.onchange_articolo(cr, uid, ids, line.product_id.id, testata['listino_id'], line.qty, parametri.partner_id.id, testata['data_documento'], uom,context)['value'])
-                                        
+                if riga.get('location_qtys',False):
+		  riga['location_qtys']= False
                 riga.update({                       
                              'quantity': line.qty,
                         'product_uom_qty':line.qty,
@@ -193,11 +195,14 @@ class pos_order(osv.osv):
                         'discount_riga':line.discount,
                         'prezzo_netto':line.price_unit - line.price_ded,
                         'totale_riga':line.price_subtotal, })
+                        
                 righe.append((0, 0, riga))
             vals = testata
-            # import pdb;pdb.set_trace()
+            #import pdb;pdb.set_trace()
+            
             vals.update({'righe_articoli':righe})
-            inv_id = inv_ref.create(cr, uid, vals, context)
+            
+            inv_id = inv_ref.create(cr, uid, vals)
             picking_id = inv_ref.browse(cr, uid, inv_id).picking_ids.id         
             self.write(cr, uid, [order.id], {'doc_id': inv_id, 'state': 'invoiced', 'picking_id':picking_id}, context=context)
             inv_ids.append(inv_id)
@@ -299,6 +304,7 @@ class account_journal(osv.osv):
                 'ip_registratore':fields.char('Ip Reg. Cassa', size=64, required=False, readonly=False),
                 'porta_ftp_cassa': fields.integer('Porta Cassa'),
                 'file_scontrino':fields.char('Nome File Scontrino', size=30, required=False, readonly=False), 
+                'causale_id': fields.many2one('causcont', 'Causale Contabile', required=False),
                 }
     
 account_journal()

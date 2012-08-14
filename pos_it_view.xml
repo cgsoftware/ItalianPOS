@@ -54,6 +54,8 @@
                             <field name="ip_registratore"/>
                             <field name="porta_ftp_cassa"/>
                             <field name="file_scontrino"/>
+                            <newline></newline>
+                            <field name="causale_id"/>
                 </field>
             </field>
         </record>

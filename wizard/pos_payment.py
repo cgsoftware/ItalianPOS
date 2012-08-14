@@ -121,7 +121,10 @@ class pos_make_payment(osv.osv_memory):
                     return  self.emetti_scontrino(cr, uid, ids,amount, context=context)
                 else:
                     return self.print_report(cr, uid, ids, context=context)
-
+        else:
+            
+            #import pdb;pdb.set_trace()
+            pass
         #import pdb;pdb.set_trace()
         context.update({'flag': True})
         # Todo need to check
@@ -130,7 +133,7 @@ class pos_make_payment(osv.osv_memory):
         if journal.file_scontrino and param.st_scontrino:
                 #
                  #   return  self.emetti_scontrino(cr, uid, ids,amount, context=context)
-                 pass
+                 return {'type': 'ir.actions.act_window_close'} 
         else:
                     return self.print_report(cr, uid, ids, context=context)
     

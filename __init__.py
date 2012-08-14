@@ -21,6 +21,7 @@
 
 import point_of_sale
 import product
+import close_register
 import wizard
 
 

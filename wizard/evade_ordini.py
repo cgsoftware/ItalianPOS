@@ -10,6 +10,7 @@ from tools.translate import _
 from decimal import Decimal
 import decimal_precision as dp
 from DAV.davmove import MOVE
+from gdata.tlslite.utils.jython_compat import SelfTestBase
 
 class pos_evade_ordini(osv.osv_memory):
     _name = 'pos.evade_ordini'
@@ -86,7 +87,7 @@ class pos_evade_ordini(osv.osv_memory):
     _columns = {
                 'pos_order_id':fields.many2one('pos.order', 'Ordine', required=True), 
                 'partner_id':fields.many2one('res.partner', 'Cliente', required=True), 
-                'move_ids':fields.one2many('stock.move', 'field_id', 'Righe Ordini da Evadere', required=False), 
+                'move_ids':fields.one2many('pos_evasione.ordini.righe', 'testa', 'Righe Ordini da Evadere', required=False), 
                     }
     
     
@@ -102,7 +103,7 @@ class pos_evade_ordini(osv.osv_memory):
     def view_init(self, cr, uid, fields_list, context=None):
         if context is None:
             context = {}
-        super(pos_make_payment, self).view_init(cr, uid, fields_list, context=context)
+        super(pos_evade_ordini, self).view_init(cr, uid, fields_list, context=context)
         active_id = context and context.get('active_id', False) or False
         if active_id:
             order = self.pool.get('pos.order').browse(cr, uid, active_id, context=context)
@@ -117,13 +118,13 @@ class pos_evade_ordini(osv.osv_memory):
         if not context:
             context={}           
         if ids:
-            testa = self.pool.get('evasione.ordini').browse(cr,uid,ids)
+            testa = self.pool.get('pos.evade_ordini').browse(cr,uid,ids)
             testa = testa[0]
             mov_riga = self.pool.get('stock.move')
-            riga1= testa.righe_da_evadere[0]
+            riga1= testa.move_ids[0]
             company_id = riga1.partner_id.company_id
             if company_id.flag_no_neg: 
-                for riga in testa.righe_da_evadere:
+                for riga in testa.move_ids:
                     if riga.product_id.type=='product':
                         context['location']= mov_riga.browse(cr,uid,riga.riga_mov_id).location_id.id
                         if riga.product_id.qty_available-riga.qty_ship <0:
@@ -132,22 +133,25 @@ class pos_evade_ordini(osv.osv_memory):
   
     def genera(self, cr, uid, ids, context=None):
         if self.check_sottoscorta(cr, uid, ids, context):
-            testa = self.browse(cr,uid,ids)
+            testa = self.browse(cr,uid,ids)[0]
+            #import pdb;pdb.set_trace()
             if testa.move_ids:
                 for move in testa.move_ids:
+                   if move.consegna: 
                     riga = {
-                            'name': fields.char('Line Description', size=512),
-                            'company_id': fields.many2one('res.company', 'Company', required=True),
-                            'notice': fields.char('Discount Notice', size=128, required=True),                            
+                            'name': 'Ordine '+ move.sale_line_id.order_id.name+' '+move.product_id.name,
+                            'company_id': testa.partner_id.company_id.id,
+                            'notice':'',                            
                             'product_id': move.product_id.id,
                             'price_unit': move.sale_line_id.price_unit,
-                            'qty': qty_ship,                            
-                            'discount': fields.float('Discount (%)', digits=(16, 2)),
+                            'qty':move.qty_ship,                            
+                            'discount': move.sale_line_id.discount,
                             'order_id': testa.pos_order_id.id,                            
                             }
                      
                     id_line_pos = self.pool.get('pos.order.line').create(cr,uid,riga)
-                    ok = self.pool.get('pos.order').write(cr,uid,[testa.pos_order_id.id],{'picking_id':MOVE.picking_id.id,'pickings':MOVE.picking_id.id})
+                    ok = self.pool.get('pos.order').write(cr,uid,[testa.pos_order_id.id],{'picking_id':move.picking_id.id})
+                    ok =self.pool.get('stock.picking').write(cr,uid,[move.picking_id.id],{'pos_order':testa.pos_order_id.id})
         return {'type': 'ir.actions.act_window_close'}
     
 pos_evade_ordini()
